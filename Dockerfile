@@ -1,3 +1,5 @@
+# First built the Artifact using maven then build docker image
+
 FROM adoptopenjdk/openjdk11
     
 EXPOSE 8080
