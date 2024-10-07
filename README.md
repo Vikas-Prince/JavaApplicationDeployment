@@ -4,9 +4,7 @@
 
 ## Overview
 
-This project provides a comprehensive end-to-end Continuous Integration and Continuous Deployment (CI/CD) pipeline for Java applications. Leveraging Jenkins, Maven, Docker, and Kubernetes, this pipeline automates the build, test, and deployment processes, ensuring high-quality software delivery.
-
-## Features
+This project provides a comprehensive end-to-end Continuous Integration and Continuous Deployment (CI/CD) pipeline for Java applications. Leveraging Jenkins, Maven, Docker, Kubernetes, prometheus and Grafana this pipeline automates the build, test, deployment and monitoring processes, ensuring high-quality software delivery.
 
 ### Continuous Integration (CI)
 
@@ -17,13 +15,13 @@ This project provides a comprehensive end-to-end Continuous Integration and Cont
 - **Nexus Repository**: Artifacts are pushed to a Nexus repository for versioning and storage.
 - **Docker Image Building**: Builds Docker images for the application as part of the CI process.
 - **Image Scanning**: Scans the built Docker images using Trivy for vulnerabilities before deployment.
+- **Push Image to Docker Hub**: Pushes Docker images to Docker Hub for accessibility.
 - **Email Notifications**: Integrates with SMTP to send email notifications regarding the pipeline status (success or failure).
 
 ### Continuous Deployment (CD)
 
 - **Infrastructure Provisioning**: Uses Ansible for provisioning infrastructure and configuring a Kubernetes cluster.
 - **Kubernetes Deployment Files**: Automatically creates Kubernetes deployment files for the application.
-- **Deployment to Docker Hub**: Pushes Docker images to Docker Hub for accessibility.
 
 ### Monitoring
 
@@ -33,4 +31,67 @@ This project provides a comprehensive end-to-end Continuous Integration and Cont
 
 ## Architecture
 
+## Prerequisites
 
+- **Java**: JDK installed (version >= 8).
+- **Maven**: Installed for building Java applications.
+- **Jenkins**: Installed with necessary plugins:
+  - Docker Pipeline
+  - Maven Integration
+  - Email Extension Plugin
+  - SonarQube Scanner
+- **Nexus Repository**: Set up for artifact storage.
+- **Docker**: Installed and running.
+- **Kubernetes**: Access to a Kubernetes cluster.
+- **Ansible**: Installed for configuration management.
+- **SMTP Server**: For sending email notifications.
+- **Trivy**: Installed for scanning Docker images.
+
+## Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Vikas-Prince/JavaApplicationDeployment
+cd JavaApplicationDeployment
+```
+
+# CI/CD Pipeline Setup Guide
+
+## 1. Configure Jenkins
+
+- **Install Plugins**: Make sure to install the required Jenkins plugins listed in the prerequisites.
+- **Create a Pipeline Job as Maven Project**:
+  - Set the pipeline to use the `Jenkinsfile` present in the repository.
+
+## 2. Configure Maven
+
+- Ensure your `pom.xml` file is correctly configured for building and testing your application, including SonarQube and other necessary plugins.
+
+## 3. Set Up Nexus Repository
+
+- Update your `pom.xml` to include the Nexus repository configuration for artifact storage.
+
+## 4. Configure Docker
+
+- Create a `Dockerfile` for your Java application.
+- Set up Docker Hub credentials in Jenkins for image pushing.
+
+## 5. Deploy Kubernetes
+
+- Use the provided Ansible playbooks to provision your Kubernetes infrastructure.
+- Configure Kubernetes deployment files as required.
+
+## 6. Set Up Monitoring
+
+- Install Prometheus and Grafana on your Kubernetes cluster.
+- Configure Node Exporter and Blackbox Exporter for collecting metrics.
+
+## 7. Run the Pipeline
+
+- Trigger the Jenkins pipeline to start the CI/CD process.
+- Monitor the status through email notifications and the Jenkins dashboard.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request with your changes.
