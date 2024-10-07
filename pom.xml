@@ -116,7 +116,7 @@
 		</plugins>
 	</build>
 
-
+	<!-- Update accordidng to your jenkins server -->
 	 <distributionManagement>
         <repository>
             <id>maven-releases</id>
@@ -127,5 +127,6 @@
             <url>http://43.205.118.230:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+	<!-- Update accordidng to your jenkins server -->
 
 </project>
