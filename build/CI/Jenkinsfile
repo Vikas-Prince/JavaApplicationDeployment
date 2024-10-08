@@ -76,7 +76,7 @@ pipeline {
 
                 // Update this configuration to align with your specific Jenkins credentials and settings.
                 script{
-                    withMaven(globalMavenSettingsConfig: '', jdk: 'jdk', maven: 'maven3', mavenSettingsConfig: 'globalsettings', traceability: true) {
+                    withMaven(globalMavenSettingsConfig: '', maven: 'maven3', mavenSettingsConfig: 'globalsettings', traceability: true) {
                         sh "mvn deploy"
                         echo "Successfully push to Nexus repo server"
                     }
