@@ -4,7 +4,7 @@ pipeline {
     agent {dockerContainer 'vikasprince/jenkinsagent'}
     
     tools{
-        jdk 'jdk17'
+        // jdk 'jdk17'
         maven 'maven3'
     }
 
@@ -44,7 +44,7 @@ pipeline {
         stage('Checking code quality with sonarscanner'){
             steps{
                script{
-                    withSonarQubeEnv(credentialsId: 'sonar-token') {
+                    withSonarQubeEnv('sonar') {
                         sh '''
                             $SONAR_HOME/bin/sonar-scanner
                             -Dsonar.projectName=JavaApplication
