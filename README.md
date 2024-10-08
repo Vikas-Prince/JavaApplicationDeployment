@@ -49,45 +49,82 @@ This project provides a comprehensive end-to-end Continuous Integration and Cont
 
 ## Getting Started
 
-### 1. Clone the Repository
+### Infrastructure Setup Guide
+
+To deploy the Java application, you need to set up the necessary infrastructure. Follow these steps:
+
+1. **Create a VPC**
+
+- Log in to your cloud provider (e.g., AWS, GCP).
+- Create a new Virtual Private Cloud (VPC) to isolate your resources.
+
+2. **Launch EC2 Instances**
+
+- Within the VPC, launch EC2 instances for your Jenkins, SonarQube, and Nexus servers.
+- Ensure the instances have the required security groups and IAM roles attached.
+
+3. **Set Up Jenkins Server**
+
+- Install Jenkins on one of the EC2 instances.
+- Configure Jenkins with necessary plugins and security settings.
+
+4. **Set Up SonarQube Server**
+
+- Deploy a SonarQube server on a separate EC2 instance.
+- Configure database connections and necessary plugins for analysis.
+
+5. **Set Up Nexus Repository Server**
+
+- Launch another EC2 instance for Nexus.
+- Configure Nexus for storing and managing your build artifacts.
+
+6. **Create an EKS Cluster or Configure Your Own Kubernetes Cluster**
+
+- **If using EKS:**
+  - Use the AWS Management Console or CLI to create an EKS cluster.
+- **If configuring your own Kubernetes cluster:**
+  - Follow the necessary steps to install and configure Kubernetes on your chosen infrastructure.
+  - Ensure `kubectl` is configured to interact with your cluster.
+
+### CI/CD Pipeline Setup Guide
+
+1. **Clone the Repository**
 
 ```bash
 git clone https://github.com/Vikas-Prince/JavaApplicationDeployment
 cd JavaApplicationDeployment
 ```
 
-# CI/CD Pipeline Setup Guide
-
-## 1. Configure Jenkins
+2. **Configure Jenkins**
 
 - **Install Plugins**: Make sure to install the required Jenkins plugins listed in the prerequisites.
 - **Create a Pipeline Job as Maven Project**:
-  - Set the pipeline to use the `Jenkinsfile` present in the repository.
+- Set the pipeline to use the `Jenkinsfile` present in the repository.
 
-## 2. Configure Maven
+3. **Configure Maven**
 
 - Ensure your `pom.xml` file is correctly configured for building and testing your application, including SonarQube and other necessary plugins.
 
-## 3. Set Up Nexus Repository
+4. **Set Up Nexus Repository**
 
 - Update your `pom.xml` to include the Nexus repository configuration for artifact storage.
 
-## 4. Configure Docker
+5. **Configure Docker**
 
 - Create a `Dockerfile` for your Java application.
 - Set up Docker Hub credentials in Jenkins for image pushing.
 
-## 5. Deploy Kubernetes
+6. **Deploy Kubernetes**
 
 - Use the provided Ansible playbooks to provision your Kubernetes infrastructure.
 - Configure Kubernetes deployment files as required.
 
-## 6. Set Up Monitoring
+7. **Set Up Monitoring**
 
 - Install Prometheus and Grafana on your Kubernetes cluster.
 - Configure Node Exporter and Blackbox Exporter for collecting metrics.
 
-## 7. Run the Pipeline
+8. **Run the Pipeline**
 
 - Trigger the Jenkins pipeline to start the CI/CD process.
 - Monitor the status through email notifications and the Jenkins dashboard.
