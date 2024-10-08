@@ -1,0 +1,114 @@
+pipeline {
+
+    // Automatically spin up a Docker container as a Jenkins agent for executing the pipeline job, and terminate it after job completion.
+    agent {dockerContainer 'vikasprince/jenkinsagent'}
+    
+    tools{
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
+    environments{
+        SONAR_HOME =tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Download the Code') {
+            steps {
+                sh "yum install docker -y"
+                git branch: 'main', url: 'https://github.com/Vikas-Prince/JavaApplicationDeployment.git'
+            }
+        }
+        
+        stage('Compile the Code'){
+            steps{
+                sh "mvn compile"
+                echo "Code successfully compiled"
+            }
+        }
+        
+        stage('Test all the test cases'){
+            steps{
+                sh "mvn test"
+                echo "All test cases are passed"
+            }
+        }
+        
+        stage('Scan File system for vulnerabilities'){
+            steps{
+                sh "trivy fs --format table -o trivy-fs-report.html ."
+                echo "Trivy scan successfull! check the trivy report"
+            }
+        }
+        
+        stage('Checking code quality with sonarscanner'){
+            steps{
+               script{
+                    withSonarQubeEnv(credentialsId: 'sonar-token') {
+                        sh '''
+                            $SONAR_HOME/bin/sonar-scanner
+                            -Dsonar.projectName=JavaApplication
+                            -Dsonar.projectKey=JavaApplication
+                            -Dsonar.java.binaries= .
+                            '''
+                    }
+               }
+            }
+        }
+        
+        stage('Quality Gate'){
+            steps{
+                script{
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        
+        stage('Build artifact'){
+            steps{
+                sh "mvn clean package"
+                echo "Build was successful!!"
+            }
+        }
+        
+        stage('Push to Nexus Repo'){
+            stage{
+
+                // Update this configuration to align with your specific Jenkins credentials and settings.
+                script{
+                    withMaven(globalMavenSettingsConfig: '', jdk: 'jdk', maven: 'maven3', mavenSettingsConfig: 'globalsettings', traceability: true) {
+                        sh "mvn deploy"
+                        echo "Successfully push to Nexus repo server"
+                    }
+                }
+            }
+        }
+        
+        stage('Build and Tag Docker image'){
+            stage{
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        sh "docker build -t vikasprince/crudapp:latest . "
+                    }
+                }
+            }
+        }
+
+        stage('Scan Docker Image'){
+            steps{
+                 sh "trivy image --format table -o trivy-fs-report.html vikasprince/crudapp:latest"
+                 echo "Trivy Docker image scan successfull! check the trivy report"
+            }
+        }
+        
+        stage('Push Image to Docker Hub'){
+            steps{
+                 withDockerRegistry(credentialsId: 'docker-cred') {
+                    sh "docker push vikasprince/crudapp:latest "
+                    echo "Successfully Push Docker image to Docker Hub"
+                }
+            }
+        }
+        
+    }
+}
