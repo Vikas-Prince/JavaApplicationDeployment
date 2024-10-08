@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-deployment
+  labels:
+    app: java-app
+    env: prod
+    author: Vikas
+spec:
+  replicas: 2
+  selectors:
+    matchLabels:
+      app: java-pod
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    labels:
+      app: java-pod
+    spec:
+      containers:
+        - name: java-container
+          image: vikasprince/crudapp:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: "100Mib"
+              cpu: "200m"
+            request:
+              memory: "80Mib"
+              cpu: "100m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: java-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: java-pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
