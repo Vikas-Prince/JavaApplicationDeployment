@@ -8,7 +8,7 @@ pipeline {
         maven 'maven3'
     }
 
-    environments{
+    environment{
         SONAR_HOME =tool 'sonar-scanner'
     }
 
@@ -72,7 +72,7 @@ pipeline {
         }
         
         stage('Push to Nexus Repo'){
-            stage{
+            steps{
 
                 // Update this configuration to align with your specific Jenkins credentials and settings.
                 script{
@@ -85,7 +85,7 @@ pipeline {
         }
         
         stage('Build and Tag Docker image'){
-            stage{
+            steps{
                 script{
                     withDockerRegistry(credentialsId: 'docker-cred') {
                         sh "docker build -t vikasprince/crudapp:latest . "

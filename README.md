@@ -60,7 +60,7 @@ To deploy the Java application, you need to set up the necessary infrastructure.
 
 2. **Launch EC2 Instances**
 
-- Within the VPC, launch EC2 instances for your Jenkins, SonarQube, and Nexus servers.
+- Within the VPC, launch EC2 instances for your Jenkins, SonarQube, and Nexus servers (use docker images to configure).
 - Ensure the instances have the required security groups and IAM roles attached.
 
 3. **Set Up Jenkins Server**
@@ -86,6 +86,9 @@ To deploy the Java application, you need to set up the necessary infrastructure.
   - Follow the necessary steps to install and configure Kubernetes on your chosen infrastructure.
   - Ensure `kubectl` is configured to interact with your cluster.
 
+- **Service Account**
+  - Make sure to create a service account for jenkins with respective permissions and generate a token to authenticate.
+
 ### CI/CD Pipeline Setup Guide
 
 1. **Clone the Repository**
@@ -97,7 +100,7 @@ cd JavaApplicationDeployment
 
 2. **Configure Jenkins**
 
-- **Install Plugins**: Make sure to install the required Jenkins plugins listed in the prerequisites.
+- **Install Plugins**: Make sure to install the required Jenkins plugins listed in the prerequisites and configure all credentials as well as tools and config files.
 - **Create a Pipeline Job as Maven Project**:
 - Set the pipeline to use the `Jenkinsfile` present in the repository.
 
@@ -107,7 +110,7 @@ cd JavaApplicationDeployment
 
 4. **Set Up Nexus Repository**
 
-- Update your `pom.xml` to include the Nexus repository configuration for artifact storage.
+- Update your `settings.xml` to include the Nexus repository configuration for artifact storage.
 
 5. **Configure Docker**
 
