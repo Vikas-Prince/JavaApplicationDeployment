@@ -96,7 +96,7 @@ pipeline {
 
         stage('Scan Docker Image'){
             steps{
-                 sh "trivy image --format table -o trivy-fs-report.html vikasprince/crudapp:latest"
+                 sh "trivy image --format table -o trivy-image-report.html vikasprince/crudapp:latest"
                  echo "Trivy Docker image scan successfull! check the trivy report"
             }
         }
@@ -110,5 +110,59 @@ pipeline {
             }
         }
         
+    }
+
+     post {
+        success {
+            script{
+                emailext (
+                subject: 'Build Notification',
+                body: """
+                        Hello Team,
+
+                        The build for job '${env.JOB_NAME}' has completed successfully!
+
+                        Build Details:
+                        - Build Number: ${env.BUILD_NUMBER}
+                        - Build Status: ${currentBuild.currentResult}
+                        - Build URL: ${env.BUILD_URL}
+
+                        Thanks,
+                        Jenkins
+                    """
+                to: 'recipient-email@gmail.com',
+                attachmentsPattern: 'trivy-image-report.html'
+            )
+            }
+        }
+
+        failure{
+            script {
+                // Capture the last build log
+                def buildLog = currentBuild.getLog(50).join("\n")
+                emailext (
+                    subject: 'Build Failed',
+                    body: """
+                        Hello Team,
+
+                        The build for job '${env.JOB_NAME}' has failed.
+
+                        Build Details:
+                        - Build Number: ${env.BUILD_NUMBER}
+                        - Build Status: ${currentBuild.currentResult}
+                        - Build URL: ${env.BUILD_URL}
+
+                        Error Log:
+                        ${buildLog}
+
+                        Please check the Jenkins console output for more details.
+
+                        Thanks,
+                        Jenkins
+                    """
+                    to: 'recipient-email@gmail.com',
+                )
+            }
+        }
     }
 }
