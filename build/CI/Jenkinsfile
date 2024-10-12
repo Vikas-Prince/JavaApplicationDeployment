@@ -4,7 +4,7 @@ pipeline {
     agent {dockerContainer 'vikasprince/jenkinsagent'}
     
     tools{
-        // jdk 'jdk17'
+        jdk 'jdk17'
         maven 'maven3'
     }
 
@@ -76,7 +76,7 @@ pipeline {
 
                 // Update this configuration to align with your specific Jenkins credentials and settings.
                 script{
-                    withMaven(globalMavenSettingsConfig: '', maven: 'maven3', mavenSettingsConfig: 'globalsettings', traceability: true) {
+                    withMaven(globalMavenSettingsConfig: '', jdk: 'jdk17' , maven: 'maven3', mavenSettingsConfig: 'globalsettings', traceability: true) {
                         sh "mvn deploy"
                         echo "Successfully push to Nexus repo server"
                     }
