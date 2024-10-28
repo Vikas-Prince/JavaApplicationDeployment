@@ -88,7 +88,7 @@ To deploy the Java application, you need to set up the necessary infrastructure.
 
   - Clone the repository containing the Terraform scripts to set up your EKS cluster.
 
-  - Ensure you have the AWS CLI and Terraform installed on your local machine.
+  - Ensure you have the AWS CLI and Terraform installed.
   - Navigate to the directory with your Terraform scripts and run the following commands:
 
 ```bash
@@ -134,12 +134,7 @@ cd JavaApplicationDeployment
 
 - Configure Kubernetes deployment files as required.
 
-7. **Set Up Monitoring**
-
-- Install Prometheus and Grafana on your Kubernetes cluster.
-- Configure Node Exporter and Blackbox Exporter for collecting metrics.
-
-8. **Run the Pipeline**
+7. **Run the Pipeline**
 
 - Trigger the Jenkins pipeline to start the CI/CD process.
 - Monitor the status through email notifications and the Jenkins dashboard.
