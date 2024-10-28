@@ -30,7 +30,8 @@ This project provides a comprehensive end-to-end Continuous Integration and Cont
 - **Blackbox Exporter**: Monitors website traffic and uptime.
 
 ## Architecture
-The architecture of this CI/CD pipeline integrates various components to streamline the build, deployment, and monitoring processes. 
+
+The architecture of this CI/CD pipeline integrates various components to streamline the build, deployment, and monitoring processes.
 
 ![Architecture](snapshots/architecutre.png)
 
@@ -83,11 +84,20 @@ To deploy the Java application, you need to set up the necessary infrastructure.
 
 6. **Create an EKS Cluster or Configure Your Own Kubernetes Cluster**
 
-- **If using EKS:**
-  - Use the AWS Management Console or CLI to create an EKS cluster.
-- **If configuring your own Kubernetes cluster:**
-  - Follow the necessary steps to install and configure Kubernetes on your chosen infrastructure.
-  - Ensure `kubectl` is configured to interact with your cluster.
+- **If using EKS with Terraform:**
+
+  - Clone the repository containing the Terraform scripts to set up your EKS cluster.
+
+  - Ensure you have the AWS CLI and Terraform installed on your local machine.
+  - Navigate to the directory with your Terraform scripts and run the following commands:
+
+```bash
+    cd deploy/terraform_scripts/
+    terraform init
+    terraform apply
+```
+
+- Confirm the creation of the EKS cluster and related resources when prompted.
 
 - **Service Account**
   - Make sure to create a service account for jenkins with respective permissions and generate a token to authenticate.
@@ -113,7 +123,7 @@ cd JavaApplicationDeployment
 
 4. **Set Up Nexus Repository**
 
-- Update your `settings.xml` to include the Nexus repository configuration for artifact storage.
+- Update your `global settings in jenkins` to include the Nexus repository configuration for artifact storage.
 
 5. **Configure Docker**
 
@@ -122,7 +132,6 @@ cd JavaApplicationDeployment
 
 6. **Deploy Kubernetes**
 
-- Use the provided Ansible playbooks to provision your Kubernetes infrastructure.
 - Configure Kubernetes deployment files as required.
 
 7. **Set Up Monitoring**
