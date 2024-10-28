@@ -30,6 +30,9 @@ This project provides a comprehensive end-to-end Continuous Integration and Cont
 - **Blackbox Exporter**: Monitors website traffic and uptime.
 
 ## Architecture
+The architecture of this CI/CD pipeline integrates various components to streamline the build, deployment, and monitoring processes. 
+
+![Architecture](snapshots/architecutre.png)
 
 ## Prerequisites
 
