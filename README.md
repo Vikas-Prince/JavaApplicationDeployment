@@ -20,14 +20,8 @@ This project provides a comprehensive end-to-end Continuous Integration and Cont
 
 ### Continuous Deployment (CD)
 
-- **Infrastructure Provisioning**: Uses Ansible for provisioning infrastructure and configuring a Kubernetes cluster.
+- **Infrastructure Provisioning**: Uses Terraform for provisioning infrastructure and configuring a Kubernetes cluster.
 - **Kubernetes Deployment Files**: Automatically creates Kubernetes deployment files for the application.
-
-### Monitoring
-
-- **Prometheus & Grafana**: Integrated for monitoring server resources such as CPU, memory, and RAM.
-- **Node Exporter**: Collects metrics from the server.
-- **Blackbox Exporter**: Monitors website traffic and uptime.
 
 ## Architecture
 
