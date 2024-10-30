@@ -3,6 +3,7 @@
   vars:
     aws_region: "{{ aws_region }}"
     eks_cluster_name: "{{ eks_cluster_name }}"
+    terraform_scripts_path: "../terraform_scripts"
   tasks:
     - name: install aws CLI
       packages:
@@ -17,13 +18,33 @@
       args:
         executable: bin/bash
 
+    - name: Configure terraform
+      get_url:
+        url: https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
+        dest: /terraform_1.6.0_linux_amd64.zip
+
+    - name: unzip terraform_1.6.0_linux_amd64
+      unarchive:
+        src: /terraform_1.6.0_linux_amd64.zip
+        dest: usr/local/bin
+        remote_src: yes
+
+    - name: apply terraform scripts
+      shell: |
+        cd {{ terraform_scripts_path }}
+        terraform init
+        terraform plan
+        terraform apply -auto-approve
+      args:
+        executable: bin/bash
+
     - name: configure kubectl
       get_url:
         url: "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-        dest: /usr/local/bin/kubectl
+        dest: usr/local/bin/kubectl
         mode: "0755"
 
     - name: update kube config
-      shell: "aws eks --region={{aws_region}} update-kubeconfig --name {{eks-cluster-name}}"
+      shell: "aws eks --region={{ aws_region }} update-kubeconfig --name {{ eks_cluster_name }}"
       args:
         executable: bin/bash
