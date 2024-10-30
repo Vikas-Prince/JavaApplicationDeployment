@@ -10,6 +10,11 @@ pipeline{
         ANSIBLE = "./deploy/playbooks"
     }
 
+    parameters{
+        string(name: 'AWS_REGION', defaultValue: "ap-south-1")
+        string(name: 'AWS_CLUSTER', defaultValue: "my-eks-cluster")
+    }
+
     stages{
 
         stage("Install Ansible"){
@@ -21,7 +26,7 @@ pipeline{
         stage("Configuring Terraform and applying Terraform Scripts"){
             steps{
                 dir("${ANSIBLE}"){
-                    sh "ansible-playbook eks-config.yml"
+                    sh "ansible-playbook eks-config.yml --extra-vars \"aws_region=${params.AWS_REGION} eks_cluster_name = ${params.AWS_CLUSTER} \"" 
                 }
             }
         }
