@@ -20,7 +20,7 @@ pipeline{
 
         stage("Configuring Terraform and applying Terraform Scripts"){
             steps{
-                DIR("ANSIBLE"){
+                dir("ANSIBLE"){
                     sh "ansible-playbook eks-config.yml"
                 }
             }
@@ -28,7 +28,7 @@ pipeline{
 
         stage("Deploying k8s application deployment file through Ansible"){
             steps{
-                DIR("ANSIBLE"){
+                dir("ANSIBLE"){
                     sh "ansible-playbook k8s-deployment.yml"
                 }
             }
