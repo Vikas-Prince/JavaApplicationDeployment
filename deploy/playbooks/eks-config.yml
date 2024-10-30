@@ -1,8 +1,5 @@
 - hosts: Master
   become: true
-  vars_files:
-    - aws_credentials
-    - aws_vars
   tasks:
     - name: install aws CLI
       packages:
@@ -25,5 +22,5 @@
 
     - name: update kube config
       shell: "aws eks --region= {{aws_region}} update-kubeconfig --name {{eks-cluster-name}}"
-      args: 
+      args:
         executable: bin/bash

@@ -4,7 +4,7 @@
     - name: "copy deployment file"
       copy:
         src: "../k8s-deployment.yml"
-        dest: "/"
+        dest: "/k8s-deployment.yml"
 
     - name: "Apply deployment file"
       k8s:
