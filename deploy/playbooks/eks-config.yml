@@ -16,7 +16,7 @@
         aws configure set aws_secret_key {{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}
         aws configure set default.region {{ aws_region }}
       args:
-        executable: bin/bash
+        executable: /bin/bash
 
     - name: Configure terraform
       get_url:
@@ -26,7 +26,7 @@
     - name: unzip terraform_1.6.0_linux_amd64
       unarchive:
         src: /terraform_1.6.0_linux_amd64.zip
-        dest: usr/local/bin
+        dest: /usr/local/bin
         remote_src: yes
 
     - name: apply terraform scripts
@@ -36,7 +36,7 @@
         terraform plan
         terraform apply -auto-approve
       args:
-        executable: bin/bash
+        executable: /bin/bash
 
     - name: configure kubectl
       get_url:
@@ -47,4 +47,4 @@
     - name: update kube config
       shell: "aws eks --region={{ aws_region }} update-kubeconfig --name {{ eks_cluster_name }}"
       args:
-        executable: bin/bash
+        executable: /bin/bash
