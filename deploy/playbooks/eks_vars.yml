@@ -1,2 +1,0 @@
-aws_region: "ap-south-1"
-eks-cluster-name: "my-cluster"
