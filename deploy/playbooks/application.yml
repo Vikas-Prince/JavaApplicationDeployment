@@ -1,0 +1,22 @@
+- hosts: Master
+  become: true
+  tasks:
+    - name: "copy deployment file"
+      copy:
+        src: "../k8s-deployment.yml"
+        dest: "/"
+
+    - name: "Apply deployment file"
+      k8s:
+        state: present
+        namespace: "webapps"
+        register: result
+
+    - name: "Check if rollout is needed"
+      k8s_facts:
+        namespace: webapps
+        register: k8s_facts
+
+    - name: "Rollout or restart the deployment"
+      command: "kubectl rollout restart k8s-deployment.yml -n webapps"
+      when: k8s_facts.resources | length > 0 and k8s_facts.resources[0].status.replicas > 0
