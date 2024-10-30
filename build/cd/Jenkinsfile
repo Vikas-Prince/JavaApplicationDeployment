@@ -1,0 +1,40 @@
+pipeline{
+
+    agent {
+        label "slave"
+    }
+
+    environment{
+        AWS_ACCESS_KEY_ID = credentials("aws-access-key")
+        AWS_SECRET_KEY_ID = credentials("aws-secret-key")
+        ANSIBLE = "./deploy/playbooks"
+    }
+
+    stages{
+
+        stage("Install Ansible"){
+            steps{
+                sh "yum install ansible -y"
+            }
+        }
+
+        stage("Configuring Terraform and applying Terraform Scripts"){
+            steps{
+                DIR("ANSIBLE"){
+                    sh "ansible-playbook eks-config.yml"
+                }
+            }
+        }
+
+        stage("Deploying k8s application deployment file through Ansible"){
+            steps{
+                DIR("ANSIBLE"){
+                    sh "ansible-playbook k8s-deployment.yml"
+                }
+            }
+        }
+
+    }
+
+
+}
