@@ -13,7 +13,7 @@
     - name: configure aws CLI
       shell: |
         aws configure set aws_access_key {{ lookup('env', 'AWS_ACCESS_KEY_ID') }}
-        aws configure set aws_secret_key {{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}
+        aws configure set aws_secret_access_key {{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}
         aws configure set default.region {{ aws_region }}
       args:
         executable: /bin/bash
@@ -29,20 +29,27 @@
         dest: /usr/local/bin
         remote_src: yes
 
-    - name: apply terraform scripts
-      shell: |
-        cd {{ terraform_scripts_path }}
-        terraform init
-        terraform plan
-        terraform apply -auto-approve
+    - name: initialize terraform
+      command: terraform init
       args:
-        executable: /bin/bash
+        chdir: "{{ terraform_scripts_path }}"
+
+    - name: terraform plan
+      command: terraform plan
+      args:
+        chdir: "{{ terraform_scripts_path }}"
+
+    - name: apply terraform scripts
+      command: terraform apply -auto-approve
+      args:
+        chdir: "{{ terraform_scripts_path }}"
 
     - name: configure kubectl
       get_url:
         url: "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
         dest: usr/local/bin/kubectl
         mode: "0755"
+      remote_src: yes
 
     - name: update kube config
       shell: "aws eks --region={{ aws_region }} update-kubeconfig --name {{ eks_cluster_name }}"
