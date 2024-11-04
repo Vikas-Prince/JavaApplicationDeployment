@@ -106,68 +106,39 @@ resource "aws_security_group" "terraSecuritygp" {
     Name = "Eks-sg"
   }
 }
-# IAM Role for EKS
-resource "aws_iam_role" "eks_role" {
-  name = "my-eks-role"
+
+
+# IAM Role for EKS Cluster
+resource "aws_iam_role" "eks_cluster_role" {
+  name = "my-eks-cluster-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-        Effect = "Allow"
-        Sid    = ""
-      },
-      {
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-        Effect = "Allow"
-        Sid    = ""
-      }
-    ]
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = { Service = "eks.amazonaws.com" }
+    }]
   })
 }
 
-# Attach predefined policies to the EKS role
-resource "aws_iam_role_policy_attachment" "ec2_full_access" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
-  role       = aws_iam_role.eks_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "cni_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "cluster_policy" {
+# Attach necessary policies to EKS Cluster Role
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_role.name
+  role       = aws_iam_role.eks_cluster_role.name
 }
 
-resource "aws_iam_role_policy_attachment" "worker_node_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_role.name
+resource "aws_iam_role_policy_attachment" "eks_service_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+  role       = aws_iam_role.eks_cluster_role.name
 }
 
-resource "aws_iam_role_policy_attachment" "cloudformation_full_access" {
-  policy_arn = "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
-  role       = aws_iam_role.eks_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "iam_full_access" {
-  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
-  role       = aws_iam_role.eks_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "vpc_resource_controller" {
+resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
-  role       = aws_iam_role.eks_role.name
+  role       = aws_iam_role.eks_cluster_role.name
 }
+
+
 
 # Create a custom policy
 resource "aws_iam_policy" "custom_eks_policy" {
@@ -189,13 +160,44 @@ resource "aws_iam_policy" "custom_eks_policy" {
 # Attach the custom policy to the EKS role
 resource "aws_iam_role_policy_attachment" "custom_policy_attachment" {
   policy_arn = aws_iam_policy.custom_eks_policy.arn
-  role       = aws_iam_role.eks_role.name
+  role       = aws_iam_role.eks_cluster_role.name
 }
 
-# Create EKS Cluster
+
+# IAM Role for EKS Worker Nodes
+resource "aws_iam_role" "eks_node_role" {
+  name = "my-eks-node-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+# Attach necessary policies to EKS Node Role
+resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_read_only_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+# eks cluster policy 
 resource "aws_eks_cluster" "my_cluster" {
   name     = "my-eks-cluster"
-  role_arn = aws_iam_role.eks_role.arn
+  role_arn = aws_iam_role.eks_cluster_role.arn
 
   vpc_config {
     subnet_ids         = [
@@ -205,12 +207,34 @@ resource "aws_eks_cluster" "my_cluster" {
     ]
     security_group_ids = [aws_security_group.terraSecuritygp.id]
   }
+
+  depends_on = [
+    aws_iam_policy.custom_eks_policy,
+    aws_iam_role_policy_attachment.eks_service_policy,
+    aws_iam_role_policy_attachment.eks_cluster_policy,
+    aws_iam_role_policy_attachment.eks_vpc_resource_controller
+  ]
 }
+
+
+# Launch Template for custom AMI
+resource "aws_launch_template" "eks_launch_template" {
+  name_prefix   = "eks-"
+  image_id      = data.aws_ami.latest-ami.id  # Use the latest AMI from the data source
+  instance_type = var.instance_type
+
+  key_name = data.aws_key_pair.eks-key.key_name
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 
 # Create EKS Node Group
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
-  node_role_arn = aws_iam_role.eks_role.arn
+  node_role_arn   = aws_iam_role.eks_node_role.arn
   node_group_name = "my-node-group"
   subnet_ids      = [
     aws_subnet.vpcSubnet1.id,
@@ -230,23 +254,13 @@ resource "aws_eks_node_group" "my_node_group" {
   }
 
   depends_on = [
-    aws_eks_cluster.my_cluster
+    aws_eks_cluster.my_cluster,
+    aws_iam_role_policy_attachment.eks_worker_node_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.ecr_read_only_policy
   ]
 
   tags = {
     Name = "Worker Nodes"
-  }
-}
-
-# Launch Template for custom AMI
-resource "aws_launch_template" "eks_launch_template" {
-  name_prefix   = "eks-"
-  image_id      = data.aws_ami.latest-ami.id  # Use the latest AMI from the data source
-  instance_type = var.instance_type
-
-  key_name = data.aws_key_pair.eks-key.key_name
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
