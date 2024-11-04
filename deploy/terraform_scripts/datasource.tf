@@ -1,22 +1,14 @@
-data "aws_ami" "latest-ami"{
-    most_recent = true
+data "aws_ami" "latest-ami" {
+  most_recent = true
 
-    owners      = ["amazon"]
-    filter {
-        name = "name"
-        values = ["RHEL-9.4.0_HVM-2024*-x86_64-82-Hourly2-GP3"]
-    }
+  owners = ["602401143452"]
 
-     filter {
-        name   = "root-device-type"
-        values = ["ebs"]
-    }
-
-    filter {
-        name   = "virtualization-type"
-        values = ["hvm"]
-    }
+  filter {
+    name   = "name"
+    values = ["amazon-eks-node-*-v*"]
+  }
 }
+
 
 data "aws_key_pair" "eks-key"{
     key_name = "EKS-Cluster"
